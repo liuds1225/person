@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.cn.person.bound.xml.ResultInfo;
-import com.cn.person.service.out.Out10001Service;
+import com.cn.person.service.out.OutService;
 
 @Service
-public class Out10001ServiceImpl implements Out10001Service{
+public class Out10001ServiceImpl implements OutService{
 	private static final Logger log = LoggerFactory.getLogger(Out10001ServiceImpl.class);
 
 	

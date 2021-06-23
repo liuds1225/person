@@ -7,7 +7,7 @@ import com.cn.person.bound.xml.ResultInfo;
  * @author Administrator
  *
  */
-public interface Out10001Service {
+public interface OutService {
 
 	ResultInfo submitData(String requestXml);
 }

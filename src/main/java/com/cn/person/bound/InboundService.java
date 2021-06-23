@@ -33,8 +33,8 @@ public class InboundService {
 	private static final Logger log = LoggerFactory.getLogger(InboundService.class);
 
 	@Autowired
-    private ApplicationContext applicationContext;
-	
+	private ApplicationContext applicationContext;
+
 	/**
 	 * 测试接口接入
 	 * 
@@ -51,7 +51,7 @@ public class InboundService {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value="/request",method = RequestMethod.GET)
+	@RequestMapping(value = "/request", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseInfo inbound(@RequestParam("requestXml") String requestXml) {
 		XmlMapper xmlmapper = new XmlMapper();
@@ -59,48 +59,48 @@ public class InboundService {
 		String startDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 		try {
 			log.info("请求报文：{}", requestXml);
-			if(StringUtils.isEmpty(requestXml) || !requestXml.startsWith("<TX>")) {
+			if (StringUtils.isEmpty(requestXml) || !requestXml.startsWith("<TX>")) {
 				return getResponseXml(headRequest, "", "99999", "请求报文解析发生异常");
 			}
 			RequestInfo requestInfo = xmlmapper.readValue(requestXml, RequestInfo.class);
-			if(requestInfo == null || requestInfo.getHeadRequest() == null) {
+			if (requestInfo == null || requestInfo.getHeadRequest() == null) {
 				return getResponseXml(headRequest, "", "99999", "请求报文解析发生异常");
 			}
 			headRequest = requestInfo.getHeadRequest();
-			if(StringUtils.isEmpty(headRequest.getTransactionNo())) {
+			if (StringUtils.isEmpty(headRequest.getTransactionNo())) {
 				return getResponseXml(headRequest, "", "99999", "交易流水号不能为空");
 			}
-			if(StringUtils.isEmpty(headRequest.getTransactionCode())) {
+			if (StringUtils.isEmpty(headRequest.getTransactionCode())) {
 				return getResponseXml(headRequest, "", "99999", "交易编码不能为空");
 			}
-			if(StringUtils.isEmpty(headRequest.getRequestDateTime())) {
+			if (StringUtils.isEmpty(headRequest.getRequestDateTime())) {
 				return getResponseXml(headRequest, "", "99999", "交易时间不能为空");
 			}
-			if(headRequest.getRequestDateTime().length() != 14) {
+			if (headRequest.getRequestDateTime().length() != 14) {
 				return getResponseXml(headRequest, "", "99999", "交易时间格式不正确");
 			}
-			if(StringUtils.isEmpty(requestInfo.getRequestEntity())) {
+			if (StringUtils.isEmpty(requestInfo.getRequestEntity())) {
 				return getResponseXml(headRequest, "", "99999", "交易请求参数不能为空");
 			}
 			// 获取class对象
-            Class<?> cls = Class.forName("com.cn.person.service.out.impl.Out"
-            		+ headRequest.getTransactionCode() + "ServiceImpl");
-            // 获取spring中的bean对象
-            Object bean = applicationContext.getBean(cls);
-            Method method = cls.getMethod("submitData", String.class);
-            ResultInfo resultInfo = (ResultInfo) method.invoke(bean, requestInfo.getRequestEntity());
-            return getResponseXml(headRequest, resultInfo.getRequestEntity()
-            		, resultInfo.getResponseCode(), resultInfo.getResponseDesc());
+			Class<?> cls = Class
+					.forName("com.cn.person.service.out.impl.Out" + headRequest.getTransactionCode() + "ServiceImpl");
+			// 获取spring中的bean对象
+			Object bean = applicationContext.getBean(cls);
+			Method method = cls.getMethod("submitData", String.class);
+			ResultInfo resultInfo = (ResultInfo) method.invoke(bean, requestInfo.getRequestEntity());
+			return getResponseXml(headRequest, resultInfo.getRequestEntity(), resultInfo.getResponseCode(),
+					resultInfo.getResponseDesc());
 		} catch (Exception e) {
 			log.info("请求报文解析异常：{}", e);
 			return getResponseXml(headRequest, "", "99999", "请求报文解析发生异常");
 		} finally {
 			String endDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 			log.info("响应处理结果介绍：00000-交易成功 11111-交易失败 99999-程序异常");
-			log.info("请求开始时间：{}, 请求结束时间：{}",startDateTime,endDateTime);
+			log.info("请求开始时间：{}, 请求结束时间：{}", startDateTime, endDateTime);
 		}
 	}
-	
+
 	/**
 	 * 得到响应报文
 	 * 
@@ -110,15 +110,16 @@ public class InboundService {
 	 * @param responseDesc
 	 * @return
 	 */
-	private ResponseInfo getResponseXml(HeadRequest headRequest, String entityXml, String responseCode, String responseDesc) {
+	private ResponseInfo getResponseXml(HeadRequest headRequest, String entityXml, String responseCode,
+			String responseDesc) {
 		ResponseInfo responseInfo = new ResponseInfo();
 		HeadResponse headResponse = new HeadResponse();
 		headResponse.setTransactionNo(headRequest.getTransactionNo());
-		//按约定，返回不能是空的
-		if(StringUtils.isEmpty(responseCode)) {
+		// 按约定，返回不能是空的
+		if (StringUtils.isEmpty(responseCode)) {
 			headResponse.setResponseCode("99999");
 			headResponse.setResponseDesc("请求交易处理发生异常");
-		}else {
+		} else {
 			headResponse.setResponseCode(responseCode);
 			headResponse.setResponseDesc(responseDesc);
 		}
