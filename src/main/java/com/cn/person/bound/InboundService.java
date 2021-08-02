@@ -50,7 +50,7 @@ public class InboundService {
 	 * @return
 	 */
 	@RequestMapping("/")
-	public String testIndex(HttpServletRequest request) {
+	public String index(HttpServletRequest request) {
 		String ip = null;
 		try {
 			// 以下两个获取在k8s中，将真实的客户端IP，放到了x-Original-Forwarded-For。而将WAF的回源地址放到了
