@@ -12,6 +12,9 @@ public class HeadResponse {
 
 	/** 交易流水号 */
 	private String transactionNo;
+	
+	/** 交易编码 */
+	private String transactionCode;
 
 	/** 响应结果码 00000-成功 11111-业务处理失败 99999-程序异常 */
 	private String responseCode;
@@ -31,6 +34,15 @@ public class HeadResponse {
 		this.transactionNo = transactionNo;
 	}
 
+	@JacksonXmlProperty(localName = "TRANSACTION_CODE")
+	public String getTransactionCode() {
+		return transactionCode;
+	}
+
+	public void setTransactionCode(String transactionCode) {
+		this.transactionCode = transactionCode;
+	}
+	
 	@JacksonXmlProperty(localName = "RESPONSE_CODE")
 	public String getResponseCode() {
 		return responseCode;

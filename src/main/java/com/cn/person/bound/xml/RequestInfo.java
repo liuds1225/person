@@ -1,6 +1,7 @@
 package com.cn.person.bound.xml;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * 请求公共xml
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
  * @author Administrator 20210307
  *
  */
+@JacksonXmlRootElement(localName = "TX")
 public class RequestInfo {
 
 	private HeadRequest headRequest;

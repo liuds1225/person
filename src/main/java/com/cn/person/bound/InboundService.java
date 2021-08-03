@@ -24,6 +24,7 @@ import com.cn.person.bound.xml.RequestInfo;
 import com.cn.person.bound.xml.ResponseInfo;
 import com.cn.person.bound.xml.ResultInfo;
 import com.cn.person.constant.ConstantClass;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
@@ -110,7 +111,7 @@ public class InboundService {
 	 */
 	@RequestMapping(value = "/request", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseInfo inbound(@RequestParam("requestXml") String requestXml) {
+	public String inbound(@RequestParam("requestXml") String requestXml) {
 		XmlMapper xmlmapper = new XmlMapper();
 		HeadRequest headRequest = new HeadRequest();
 		String startDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -149,8 +150,9 @@ public class InboundService {
 				resultInfo.setResponseCode(ConstantClass.FAIL_CODE);
 				resultInfo.setResponseDesc(e.getMessage());
 			} catch (Exception e) {
+				log.info("响应报文解析异常：{}", e);
 				resultInfo.setResponseCode(ConstantClass.EXCEPTION_CODE);
-				resultInfo.setResponseDesc(e.getMessage());
+				resultInfo.setResponseDesc("系统异常，请联系管理员");
 			}
 			return getResponseXml(headRequest, resultInfo.getRequestEntity(), resultInfo.getResponseCode(),
 					resultInfo.getResponseDesc());
@@ -173,7 +175,7 @@ public class InboundService {
 	 * @param responseDesc
 	 * @return
 	 */
-	private ResponseInfo getResponseXml(HeadRequest headRequest, String entityXml, String responseCode,
+	private String getResponseXml(HeadRequest headRequest, String entityXml, String responseCode,
 			String responseDesc) {
 		ResponseInfo responseInfo = new ResponseInfo();
 		HeadResponse headResponse = new HeadResponse();
@@ -189,7 +191,13 @@ public class InboundService {
 		headResponse.setResponseDateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 		responseInfo.setHeadResponse(headResponse);
 		responseInfo.setResponseEntity(entityXml);
-		return responseInfo;
+		String responseXml;
+		try {
+			responseXml = new XmlMapper().writeValueAsString(responseInfo);
+		} catch (JsonProcessingException e) {
+			responseXml = "";
+		}
+		return responseXml;
 	}
 
 }
